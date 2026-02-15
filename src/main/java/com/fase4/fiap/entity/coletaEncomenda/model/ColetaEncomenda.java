@@ -17,7 +17,7 @@ import lombok.Setter;
 public class ColetaEncomenda extends AbstractEntity implements Serializable {
 
     @NonNull
-    private UUID recebimentoEncomendaId;
+    private UUID recebimentoId;
 
     @NonNull
     private String cpfMoradorColeta;
@@ -29,8 +29,8 @@ public class ColetaEncomenda extends AbstractEntity implements Serializable {
     @NonNull
     private OffsetDateTime dataColeta;
 
-    public ColetaEncomenda(@NonNull UUID recebimentoEncomendaId, @NonNull String cpfMoradorColeta, @NonNull String nomeMoradorColeta, @NonNull OffsetDateTime dataColeta) {
-        this.recebimentoEncomendaId = recebimentoEncomendaId;
+    public ColetaEncomenda(@NonNull UUID recebimentoId, @NonNull String cpfMoradorColeta, @NonNull String nomeMoradorColeta, @NonNull OffsetDateTime dataColeta) {
+        this.recebimentoId = recebimentoId;
         this.cpfMoradorColeta = cpfMoradorColeta;
         this.nomeMoradorColeta = nomeMoradorColeta;
         this.dataColeta = dataColeta;
@@ -38,7 +38,7 @@ public class ColetaEncomenda extends AbstractEntity implements Serializable {
 
     public static void validacaoDataColeta(OffsetDateTime dataColeta) {
         if (dataColeta.isAfter(OffsetDateTime.now())) {
-            throw new IllegalArgumentException("Data de coleta não pode ser no futuro.");
+            throw new IllegalArgumentException("Data de coleta nÃ£o pode ser no futuro.");
         }
     }
 

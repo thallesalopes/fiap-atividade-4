@@ -1,0 +1,100 @@
+package com.fase4.fiap.bdd.coletaEncomenda;
+
+import java.time.OffsetDateTime;
+
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.not;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+
+import io.cucumber.java.pt.Dado;
+import io.cucumber.java.pt.Então;
+import io.cucumber.java.pt.Quando;
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.response.Response;
+
+public class SearchColetaEncomendaBDD {
+
+    private Response response;
+    private final String dataEntrega = OffsetDateTime.now().toString();
+
+    @LocalServerPort
+    private int port;
+
+    @Dado("que existem vÃ¡rios coletaEncomenda cadastrados - Search")
+    public void que_existem_varios_coleta_encomenda_cadastrados() {
+        RestAssured.baseURI = "http://localhost";
+        RestAssured.port = port;
+
+        for (int i = 1; i <= 2; i++) {
+            String apartamentoJson = String.format("""
+                    {
+                        "torre": "F",
+                        "andar": "20",
+                        "numero": "1%d"
+                    }
+                    """, i);
+
+            String apartamentoId = given()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(apartamentoJson)
+                    .post("/api/apartamentos")
+                    .then()
+                    .statusCode(HttpStatus.CREATED.value())
+                    .extract()
+                    .path("id");
+
+            String recebimentoJson = String.format("""
+                {
+                    "apartamentoId": "%s",
+                    "descricao": "Teste%d",
+                    "dataEntrega": "%s",
+                    "estadoColeta": "PENDENTE"
+                }
+                """, apartamentoId, i, dataEntrega);
+
+            String recebimentoId = given()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(recebimentoJson)
+                    .post("/api/recebimento-encomendas")
+                    .then()
+                    .statusCode(HttpStatus.CREATED.value())
+                    .extract()
+                    .path("id");
+
+            String coletaEncomendaJson = String.format("""
+                {
+                    "recebimentoId": "%s",
+                    "cpfMoradorColeta": "1234567891%d",
+                    "nomeMoradorColeta": "Teste",
+                    "dataColeta": "%s"
+                }
+                """, recebimentoId, i, dataEntrega);
+
+            given()
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(coletaEncomendaJson)
+            .post("/api/coleta-encomendas")
+            .then()
+            .statusCode(HttpStatus.CREATED.value());
+        }
+    }
+
+    @Quando("os coletaEncomenda forem buscados - Search")
+    public void os_coleta_encomenda_forem_buscados() {
+        response = given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get("/api/coleta-encomendas");
+    }
+
+    @Então("os coletaEncomenda serão retornados no sistema - Search")
+    public void os_coleta_encomenda_serao_retornados_no_sistema() {
+        response.then()
+                .statusCode(HttpStatus.OK.value())
+                .body("$", not(empty()));
+    }
+
+}
