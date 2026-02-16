@@ -18,7 +18,7 @@ import com.fase4.fiap.entity.recebimento.exception.RecebimentoNotFoundException;
 import com.fase4.fiap.entity.recebimento.gateway.RecebimentoGateway;
 import com.fase4.fiap.entity.recebimento.model.Recebimento;
 import com.fase4.fiap.usecase.CasoDeUseTestBase;
-import com.fase4.fiap.usecase.coletaEncomenda.dto.ColetaEncomendaRegistrationData;
+import com.fase4.fiap.usecase.dto.ColetaEncomendaRequest;
 import static com.fase4.fiap.usecase.fixtures.DadosDeTeste.coletaPadrao;
 import static com.fase4.fiap.usecase.fixtures.DadosDeTeste.novoId;
 import static com.fase4.fiap.usecase.fixtures.DadosDeTeste.recebimentoPadrao;
@@ -48,7 +48,7 @@ class CreateColetaEncomendaUseCaseTest extends CasoDeUseTestBase {
         UUID recebimentoId = novoId();
         UUID apartamentoId = novoId();
         Recebimento recebimento = recebimentoPadrao(apartamentoId);
-        ColetaEncomendaRegistrationData dadosColeta = coletaDtoPadrao(recebimentoId);
+        ColetaEncomendaRequest dadosColeta = coletaDtoPadrao(recebimentoId);
         ColetaEncomenda coletaSalva = coletaPadrao(recebimentoId);
 
         when(recebimentoGateway.findById(recebimentoId)).thenReturn(Optional.of(recebimento));
@@ -66,7 +66,7 @@ class CreateColetaEncomendaUseCaseTest extends CasoDeUseTestBase {
     @DisplayName("Deve lançar exceção quando recebimento não existe")
     void deveLancarExcecaoQuandoRecebimentoNaoExiste() {
         UUID recebimentoId = novoId();
-        ColetaEncomendaRegistrationData dadosColeta = coletaDtoPadrao(recebimentoId);
+        ColetaEncomendaRequest dadosColeta = coletaDtoPadrao(recebimentoId);
 
         when(recebimentoGateway.findById(recebimentoId)).thenReturn(Optional.empty());
 

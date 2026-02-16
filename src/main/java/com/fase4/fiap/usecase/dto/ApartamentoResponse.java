@@ -1,15 +1,10 @@
-package com.fase4.fiap.usecase.apartamento.dto;
+package com.fase4.fiap.usecase.dto;
 
 import java.util.UUID;
 
-public interface IApartamentoPublicData {
-
+public interface ApartamentoResponse {
     UUID id();
-
     char torre();
-
     byte andar();
-
     byte numero();
-
 }

@@ -9,7 +9,7 @@ public record MoradorUpdateData(
         String nome,
         List<String> telefone,
         List<UUID> apartamentoId
-) implements com.fase4.fiap.usecase.morador.dto.MoradorUpdateData {
+) implements com.fase4.fiap.usecase.dto.MoradorUpdateRequest {
 
     public MoradorUpdateData(Morador morador) {
         this(

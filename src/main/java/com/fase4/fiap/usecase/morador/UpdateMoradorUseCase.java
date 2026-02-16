@@ -9,7 +9,7 @@ import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
 import com.fase4.fiap.entity.morador.exception.MoradorNotFoundException;
 import com.fase4.fiap.entity.morador.gateway.MoradorGateway;
 import com.fase4.fiap.entity.morador.model.Morador;
-import com.fase4.fiap.usecase.morador.dto.MoradorUpdateData;
+import com.fase4.fiap.usecase.dto.MoradorUpdateRequest;
 
 public class UpdateMoradorUseCase {
 
@@ -22,7 +22,7 @@ public class UpdateMoradorUseCase {
     }
 
     @Transactional
-    public Morador execute(UUID id, MoradorUpdateData dados) throws MoradorNotFoundException, ApartamentoNotFoundException {
+    public Morador execute(UUID id, MoradorUpdateRequest dados) throws MoradorNotFoundException, ApartamentoNotFoundException {
         Morador morador = buscarMorador(id);
         validarApartamento(dados.apartamentoId().getFirst());
         atualizarDadosMorador(morador, dados);
@@ -39,7 +39,7 @@ public class UpdateMoradorUseCase {
                 .orElseThrow(() -> new ApartamentoNotFoundException("Apartamento not found: " + apartamentoId));
     }
 
-    private void atualizarDadosMorador(Morador morador, MoradorUpdateData dados) {
+    private void atualizarDadosMorador(Morador morador, MoradorUpdateRequest dados) {
         if (dados.nome() != null && !dados.nome().isBlank()) {
             morador.setNome(dados.nome());
         }

@@ -6,7 +6,7 @@ public record ApartamentoRegistrationData(
         char torre,
         byte andar,
         byte numero
-) implements com.fase4.fiap.usecase.apartamento.dto.ApartamentoRegistrationData {
+) implements com.fase4.fiap.usecase.dto.ApartamentoRequest {
 
     public ApartamentoRegistrationData(Apartamento apartamento) {
         this(

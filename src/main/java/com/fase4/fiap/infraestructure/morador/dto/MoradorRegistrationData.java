@@ -1,10 +1,9 @@
 package com.fase4.fiap.infraestructure.morador.dto;
 
-import com.fase4.fiap.entity.morador.model.Morador;
-import com.fase4.fiap.usecase.morador.dto.IMoradorRegistrationData;
-
 import java.util.List;
 import java.util.UUID;
+
+import com.fase4.fiap.entity.morador.model.Morador;
 
 public record MoradorRegistrationData(
         String cpf,
@@ -12,7 +11,7 @@ public record MoradorRegistrationData(
         List<String> telefone,
         String email,
         List<UUID> apartamentoId
-) implements IMoradorRegistrationData {
+) implements com.fase4.fiap.usecase.dto.MoradorRequest {
 
     public MoradorRegistrationData(Morador morador) {
         this(

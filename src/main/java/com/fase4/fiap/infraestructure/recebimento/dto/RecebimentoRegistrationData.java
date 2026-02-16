@@ -10,7 +10,7 @@ public record RecebimentoRegistrationData(
         String descricao,
         OffsetDateTime dataEntrega,
         Recebimento.EstadoColeta estadoColeta
-) implements com.fase4.fiap.usecase.recebimento.dto.RecebimentoRegistrationData {
+) implements com.fase4.fiap.usecase.dto.RecebimentoRequest {
 
     public RecebimentoRegistrationData(Recebimento recebimento) {
         this(

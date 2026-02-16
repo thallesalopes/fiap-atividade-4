@@ -10,7 +10,7 @@ public record ColetaEncomendaRegistrationData(
         String cpfMoradorColeta,
         String nomeMoradorColeta,
         OffsetDateTime dataColeta
-) implements com.fase4.fiap.usecase.coletaEncomenda.dto.ColetaEncomendaRegistrationData {
+) implements com.fase4.fiap.usecase.dto.ColetaEncomendaRequest {
 
     public ColetaEncomendaRegistrationData(ColetaEncomenda coletaEncomenda) {
         this(

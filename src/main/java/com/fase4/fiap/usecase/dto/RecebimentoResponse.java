@@ -1,20 +1,14 @@
-package com.fase4.fiap.usecase.recebimento.dto;
-
-import com.fase4.fiap.entity.recebimento.model.Recebimento;
+package com.fase4.fiap.usecase.dto;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public interface RecebimentoRegistrationData {
+import com.fase4.fiap.entity.recebimento.model.Recebimento;
 
+public interface RecebimentoResponse {
+    UUID id();
     UUID apartamentoId();
-
     String descricao();
-
     OffsetDateTime dataEntrega();
-
     Recebimento.EstadoColeta estadoColeta();
-
 }
-
-

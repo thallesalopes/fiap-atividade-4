@@ -10,8 +10,8 @@ import com.fase4.fiap.entity.message.notificacao.model.Notificacao;
 import com.fase4.fiap.entity.recebimento.gateway.RecebimentoGateway;
 import com.fase4.fiap.entity.recebimento.model.Recebimento;
 import static com.fase4.fiap.entity.recebimento.model.Recebimento.validacaoDataEntrega;
+import com.fase4.fiap.usecase.dto.RecebimentoRequest;
 import com.fase4.fiap.usecase.message.publish.PublicarNotificacaoUseCase;
-import com.fase4.fiap.usecase.recebimento.dto.RecebimentoRegistrationData;
 
 public class CreateRecebimentoUseCase {
 
@@ -26,7 +26,7 @@ public class CreateRecebimentoUseCase {
     }
 
     @Transactional
-    public Recebimento execute(RecebimentoRegistrationData dados) throws ApartamentoNotFoundException {
+    public Recebimento execute(RecebimentoRequest dados) throws ApartamentoNotFoundException {
         validacaoDataEntrega(dados.dataEntrega());
         validarApartamento(dados.apartamentoId());
 
@@ -41,7 +41,7 @@ public class CreateRecebimentoUseCase {
                 .orElseThrow(() -> new ApartamentoNotFoundException("Apartamento not found: " + apartamentoId));
     }
 
-    private Recebimento criarRecebimento(RecebimentoRegistrationData dados) {
+    private Recebimento criarRecebimento(RecebimentoRequest dados) {
         return new Recebimento(
                 dados.apartamentoId(),
                 dados.descricao(),
@@ -50,7 +50,7 @@ public class CreateRecebimentoUseCase {
         );
     }
 
-    private void enviarNotificacao(RecebimentoRegistrationData dados) {
+    private void enviarNotificacao(RecebimentoRequest dados) {
         String mensagem = construirMensagemNotificacao(dados);
         Notificacao notificacao = new Notificacao(
                 dados.apartamentoId(),
@@ -60,7 +60,7 @@ public class CreateRecebimentoUseCase {
         publicarNotificacaoUseCase.publish(notificacao);
     }
 
-    private String construirMensagemNotificacao(RecebimentoRegistrationData dados) {
+    private String construirMensagemNotificacao(RecebimentoRequest dados) {
         return "Nova encomenda recebida: " +
                 "\nDescrição: " + dados.descricao() +
                 "\nData de Entrega: " + dados.dataEntrega().toString();

@@ -4,7 +4,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
 import com.fase4.fiap.entity.apartamento.model.Apartamento;
-import com.fase4.fiap.usecase.apartamento.dto.ApartamentoRegistrationData;
+import com.fase4.fiap.usecase.dto.ApartamentoRequest;
 
 public class CreateApartamentoUseCase {
 
@@ -15,7 +15,7 @@ public class CreateApartamentoUseCase {
     }
 
     @Transactional
-    public Apartamento execute(ApartamentoRegistrationData dados) {
+    public Apartamento execute(ApartamentoRequest dados) {
 
         Apartamento apartamento = new Apartamento(dados.torre(), dados.andar(), dados.numero());
 

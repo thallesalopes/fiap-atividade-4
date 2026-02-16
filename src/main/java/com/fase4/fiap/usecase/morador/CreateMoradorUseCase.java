@@ -1,12 +1,13 @@
 package com.fase4.fiap.usecase.morador;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fase4.fiap.entity.apartamento.exception.ApartamentoNotFoundException;
 import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
 import com.fase4.fiap.entity.apartamento.model.Apartamento;
 import com.fase4.fiap.entity.morador.gateway.MoradorGateway;
 import com.fase4.fiap.entity.morador.model.Morador;
-import com.fase4.fiap.usecase.morador.dto.IMoradorRegistrationData;
-import org.springframework.transaction.annotation.Transactional;
+import com.fase4.fiap.usecase.dto.MoradorRequest;
 
 public class CreateMoradorUseCase {
 
@@ -19,7 +20,7 @@ public class CreateMoradorUseCase {
     }
 
     @Transactional
-    public Morador execute(IMoradorRegistrationData dados) throws ApartamentoNotFoundException {
+    public Morador execute(MoradorRequest dados) throws ApartamentoNotFoundException {
 
         Apartamento apartamento = apartamentoGateway.findById(dados.apartamentoId().getFirst())
                 .orElseThrow(() -> new ApartamentoNotFoundException("Apartamento not found: " + dados.apartamentoId().getFirst()));

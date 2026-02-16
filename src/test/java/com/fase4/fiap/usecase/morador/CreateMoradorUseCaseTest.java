@@ -18,10 +18,10 @@ import com.fase4.fiap.entity.apartamento.model.Apartamento;
 import com.fase4.fiap.entity.morador.gateway.MoradorGateway;
 import com.fase4.fiap.entity.morador.model.Morador;
 import com.fase4.fiap.usecase.CasoDeUseTestBase;
+import com.fase4.fiap.usecase.dto.MoradorRequest;
 import static com.fase4.fiap.usecase.fixtures.DadosDeTeste.apartamentoPadrao;
 import static com.fase4.fiap.usecase.fixtures.DadosDeTeste.moradorPadrao;
 import static com.fase4.fiap.usecase.fixtures.FabricaDeDtosMock.moradorDtoPadrao;
-import com.fase4.fiap.usecase.morador.dto.IMoradorRegistrationData;
 
 @DisplayName("Use Case: Criar Morador")
 class CreateMoradorUseCaseTest extends CasoDeUseTestBase {
@@ -45,7 +45,7 @@ class CreateMoradorUseCaseTest extends CasoDeUseTestBase {
     @DisplayName("Deve criar morador com sucesso quando dados válidos")
     void deveCriarMoradorComSucesso() throws ApartamentoNotFoundException {
         UUID apartamentoId = UUID.randomUUID();
-        IMoradorRegistrationData dados = moradorDtoPadrao(apartamentoId);
+        MoradorRequest dados = moradorDtoPadrao(apartamentoId);
         Apartamento apartamento = apartamentoPadrao();
         Morador moradorEsperado = moradorPadrao(apartamentoId);
 
@@ -64,7 +64,7 @@ class CreateMoradorUseCaseTest extends CasoDeUseTestBase {
     @DisplayName("Deve lançar exceção quando apartamento não existe")
     void deveLancarExcecaoQuandoApartamentoNaoExiste() {
         UUID apartamentoId = UUID.randomUUID();
-        IMoradorRegistrationData dados = moradorDtoPadrao(apartamentoId);
+        MoradorRequest dados = moradorDtoPadrao(apartamentoId);
 
         when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.empty());
 

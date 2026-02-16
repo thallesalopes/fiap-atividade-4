@@ -10,7 +10,7 @@ import static com.fase4.fiap.entity.coletaEncomenda.model.ColetaEncomenda.valida
 import com.fase4.fiap.entity.recebimento.exception.RecebimentoNotFoundException;
 import com.fase4.fiap.entity.recebimento.gateway.RecebimentoGateway;
 import com.fase4.fiap.entity.recebimento.model.Recebimento;
-import com.fase4.fiap.usecase.coletaEncomenda.dto.ColetaEncomendaRegistrationData;
+import com.fase4.fiap.usecase.dto.ColetaEncomendaRequest;
 
 public class CreateColetaEncomendaUseCase {
 
@@ -23,7 +23,7 @@ public class CreateColetaEncomendaUseCase {
     }
 
     @Transactional
-    public ColetaEncomenda execute(ColetaEncomendaRegistrationData dados) throws RecebimentoNotFoundException {
+    public ColetaEncomenda execute(ColetaEncomendaRequest dados) throws RecebimentoNotFoundException {
         validacaoDataColeta(dados.dataColeta());
 
         Recebimento recebimento = buscarRecebimento(dados.recebimentoId());
@@ -38,7 +38,7 @@ public class CreateColetaEncomendaUseCase {
                 .orElseThrow(() -> new RecebimentoNotFoundException("recebimento not found: " + recebimentoId));
     }
 
-    private ColetaEncomenda criarColetaEncomenda(ColetaEncomendaRegistrationData dados) {
+    private ColetaEncomenda criarColetaEncomenda(ColetaEncomendaRequest dados) {
         return new ColetaEncomenda(
                 dados.recebimentoId(),
                 dados.cpfMoradorColeta(),

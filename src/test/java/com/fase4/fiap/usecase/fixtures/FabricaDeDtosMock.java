@@ -8,28 +8,28 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fase4.fiap.entity.recebimento.model.Recebimento;
-import com.fase4.fiap.usecase.apartamento.dto.ApartamentoRegistrationData;
-import com.fase4.fiap.usecase.coletaEncomenda.dto.ColetaEncomendaRegistrationData;
-import com.fase4.fiap.usecase.morador.dto.IMoradorRegistrationData;
-import com.fase4.fiap.usecase.morador.dto.MoradorUpdateData;
-import com.fase4.fiap.usecase.recebimento.dto.RecebimentoRegistrationData;
+import com.fase4.fiap.usecase.dto.ApartamentoRequest;
+import com.fase4.fiap.usecase.dto.ColetaEncomendaRequest;
+import com.fase4.fiap.usecase.dto.MoradorRequest;
+import com.fase4.fiap.usecase.dto.MoradorUpdateRequest;
+import com.fase4.fiap.usecase.dto.RecebimentoRequest;
 
 public class FabricaDeDtosMock {
 
-    public static ApartamentoRegistrationData apartamentoDto(char torre, byte andar, byte numero) {
-        ApartamentoRegistrationData dto = mock(ApartamentoRegistrationData.class);
+    public static ApartamentoRequest apartamentoDto(char torre, byte andar, byte numero) {
+        ApartamentoRequest dto = mock(ApartamentoRequest.class);
         when(dto.torre()).thenReturn(torre);
         when(dto.andar()).thenReturn(andar);
         when(dto.numero()).thenReturn(numero);
         return dto;
     }
 
-    public static ApartamentoRegistrationData apartamentoDtoPadrao() {
+    public static ApartamentoRequest apartamentoDtoPadrao() {
         return apartamentoDto('A', (byte) 10, (byte) 101);
     }
 
-    public static IMoradorRegistrationData moradorDto(String cpf, String nome, String email, UUID apartamentoId) {
-        IMoradorRegistrationData dto = mock(IMoradorRegistrationData.class);
+    public static MoradorRequest moradorDto(String cpf, String nome, String email, UUID apartamentoId) {
+        MoradorRequest dto = mock(MoradorRequest.class);
         when(dto.cpf()).thenReturn(cpf);
         when(dto.nome()).thenReturn(nome);
         when(dto.email()).thenReturn(email);
@@ -38,23 +38,23 @@ public class FabricaDeDtosMock {
         return dto;
     }
 
-    public static IMoradorRegistrationData moradorDtoPadrao(UUID apartamentoId) {
+    public static MoradorRequest moradorDtoPadrao(UUID apartamentoId) {
         return moradorDto("12345678901", "João Silva", "joao@email.com", apartamentoId);
     }
 
-    public static MoradorUpdateData moradorUpdateDto(String nome, List<String> telefones, UUID apartamentoId) {
-        MoradorUpdateData dto = mock(MoradorUpdateData.class);
+    public static MoradorUpdateRequest moradorUpdateDto(String nome, List<String> telefones, UUID apartamentoId) {
+        MoradorUpdateRequest dto = mock(MoradorUpdateRequest.class);
         when(dto.nome()).thenReturn(nome);
         when(dto.telefone()).thenReturn(telefones);
         when(dto.apartamentoId()).thenReturn(List.of(apartamentoId));
         return dto;
     }
 
-    public static RecebimentoRegistrationData recebimentoDto(
+    public static RecebimentoRequest recebimentoDto(
             UUID apartamentoId, 
             String descricao, 
             OffsetDateTime dataEntrega) {
-        RecebimentoRegistrationData dto = mock(RecebimentoRegistrationData.class);
+        RecebimentoRequest dto = mock(RecebimentoRequest.class);
         when(dto.apartamentoId()).thenReturn(apartamentoId);
         when(dto.descricao()).thenReturn(descricao);
         when(dto.dataEntrega()).thenReturn(dataEntrega);
@@ -62,16 +62,16 @@ public class FabricaDeDtosMock {
         return dto;
     }
 
-    public static RecebimentoRegistrationData recebimentoDtoPadrao(UUID apartamentoId) {
+    public static RecebimentoRequest recebimentoDtoPadrao(UUID apartamentoId) {
         return recebimentoDto(apartamentoId, "Pacote de livros", OffsetDateTime.now().minusHours(1));
     }
 
-    public static ColetaEncomendaRegistrationData coletaDto(
+    public static ColetaEncomendaRequest coletaDto(
             UUID recebimentoId, 
             String cpf, 
             String nome, 
             OffsetDateTime dataColeta) {
-        ColetaEncomendaRegistrationData dto = mock(ColetaEncomendaRegistrationData.class);
+        ColetaEncomendaRequest dto = mock(ColetaEncomendaRequest.class);
         when(dto.recebimentoId()).thenReturn(recebimentoId);
         when(dto.cpfMoradorColeta()).thenReturn(cpf);
         when(dto.nomeMoradorColeta()).thenReturn(nome);
@@ -79,7 +79,7 @@ public class FabricaDeDtosMock {
         return dto;
     }
 
-    public static ColetaEncomendaRegistrationData coletaDtoPadrao(UUID recebimentoId) {
+    public static ColetaEncomendaRequest coletaDtoPadrao(UUID recebimentoId) {
         return coletaDto(recebimentoId, "12345678901", "João Silva", OffsetDateTime.now().minusMinutes(30));
     }
 }

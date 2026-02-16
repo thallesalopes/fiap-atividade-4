@@ -4,7 +4,6 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import com.fase4.fiap.entity.coletaEncomenda.model.ColetaEncomenda;
-import com.fase4.fiap.usecase.coletaEncomenda.dto.IColetaEncomendaPublicData;
 
 public record ColetaEncomendaPublicData(
         UUID id,
@@ -12,7 +11,7 @@ public record ColetaEncomendaPublicData(
         String cpfMoradorColeta,
         String nomeMoradorColeta,
         OffsetDateTime dataColeta
-) implements IColetaEncomendaPublicData {
+) implements com.fase4.fiap.usecase.dto.ColetaEncomendaResponse {
 
     public ColetaEncomendaPublicData(ColetaEncomenda coletaEncomenda) {
         this(
