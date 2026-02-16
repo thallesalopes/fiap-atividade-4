@@ -1,6 +1,5 @@
 package com.fase4.fiap.entity.recebimento.model;
 
-import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -9,28 +8,24 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-public class Recebimento extends AbstractEntity implements Serializable {
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class Recebimento extends AbstractEntity {
 
-    @NonNull
-    private UUID apartamentoId;
-
-    @NonNull
-    private String descricao;
-
-    @NonNull
-    private OffsetDateTime dataEntrega;
-
+    @NonNull private UUID apartamentoId;
+    @NonNull private String descricao;
+    @NonNull private OffsetDateTime dataEntrega;
+    
     @Enumerated(EnumType.STRING)
-    @NonNull
-    private EstadoColeta estadoColeta;
+    @NonNull private EstadoColeta estadoColeta;
 
     public enum EstadoColeta {
         PENDENTE, COLETADA;
@@ -39,13 +34,6 @@ public class Recebimento extends AbstractEntity implements Serializable {
         public String getValue() {
             return this.name();
         }
-    }
-
-    public Recebimento(@NonNull UUID apartamentoId, @NonNull String descricao, @NonNull OffsetDateTime dataEntrega, @NonNull EstadoColeta estadoColeta) {
-        this.apartamentoId = apartamentoId;
-        this.descricao = descricao;
-        this.dataEntrega = dataEntrega;
-        this.estadoColeta = estadoColeta;
     }
 
     public static void validacaoDataEntrega(OffsetDateTime dataEntrega) {
@@ -57,7 +45,6 @@ public class Recebimento extends AbstractEntity implements Serializable {
     public void atualizarEstadoColeta() {
         this.estadoColeta = EstadoColeta.COLETADA;
     }
-
 }
 
 
