@@ -1,17 +1,16 @@
 package com.fase4.fiap.infraestructure.recebimento.dto;
 
-import com.fase4.fiap.entity.recebimento.model.Recebimento;
-import com.fase4.fiap.usecase.recebimento.dto.IRecebimentoRegistrationData;
-
 import java.time.OffsetDateTime;
 import java.util.UUID;
+
+import com.fase4.fiap.entity.recebimento.model.Recebimento;
 
 public record RecebimentoRegistrationData(
         UUID apartamentoId,
         String descricao,
         OffsetDateTime dataEntrega,
         Recebimento.EstadoColeta estadoColeta
-) implements IRecebimentoRegistrationData {
+) implements com.fase4.fiap.usecase.recebimento.dto.RecebimentoRegistrationData {
 
     public RecebimentoRegistrationData(Recebimento recebimento) {
         this(

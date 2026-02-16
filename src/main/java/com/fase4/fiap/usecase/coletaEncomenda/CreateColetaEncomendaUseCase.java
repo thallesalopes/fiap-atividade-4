@@ -1,5 +1,7 @@
 package com.fase4.fiap.usecase.coletaEncomenda;
 
+import java.util.UUID;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fase4.fiap.entity.coletaEncomenda.gateway.ColetaEncomendaGateway;
@@ -8,7 +10,7 @@ import static com.fase4.fiap.entity.coletaEncomenda.model.ColetaEncomenda.valida
 import com.fase4.fiap.entity.recebimento.exception.RecebimentoNotFoundException;
 import com.fase4.fiap.entity.recebimento.gateway.RecebimentoGateway;
 import com.fase4.fiap.entity.recebimento.model.Recebimento;
-import com.fase4.fiap.usecase.coletaEncomenda.dto.IColetaEncomendaRegistrationData;
+import com.fase4.fiap.usecase.coletaEncomenda.dto.ColetaEncomendaRegistrationData;
 
 public class CreateColetaEncomendaUseCase {
 
@@ -21,18 +23,28 @@ public class CreateColetaEncomendaUseCase {
     }
 
     @Transactional
-    public ColetaEncomenda execute(IColetaEncomendaRegistrationData dados) throws RecebimentoNotFoundException {
-
+    public ColetaEncomenda execute(ColetaEncomendaRegistrationData dados) throws RecebimentoNotFoundException {
         validacaoDataColeta(dados.dataColeta());
 
-        Recebimento recebimento = recebimentoGateway.findById(dados.recebimentoId())
-                .orElseThrow(() -> new RecebimentoNotFoundException("recebimento not found: " + dados.recebimentoId()));
-
-        ColetaEncomenda coletaEncomenda = new ColetaEncomenda(dados.recebimentoId(), dados.cpfMoradorColeta(), dados.nomeMoradorColeta(), dados.dataColeta());
-
+        Recebimento recebimento = buscarRecebimento(dados.recebimentoId());
         recebimento.atualizarEstadoColeta();
 
+        ColetaEncomenda coletaEncomenda = criarColetaEncomenda(dados);
         return this.coletaEncomendaGateway.save(coletaEncomenda);
+    }
+
+    private Recebimento buscarRecebimento(UUID recebimentoId) throws RecebimentoNotFoundException {
+        return recebimentoGateway.findById(recebimentoId)
+                .orElseThrow(() -> new RecebimentoNotFoundException("recebimento not found: " + recebimentoId));
+    }
+
+    private ColetaEncomenda criarColetaEncomenda(ColetaEncomendaRegistrationData dados) {
+        return new ColetaEncomenda(
+                dados.recebimentoId(),
+                dados.cpfMoradorColeta(),
+                dados.nomeMoradorColeta(),
+                dados.dataColeta()
+        );
     }
 
 }

@@ -1,15 +1,15 @@
 package com.fase4.fiap.usecase.morador;
 
+import java.util.UUID;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fase4.fiap.entity.apartamento.exception.ApartamentoNotFoundException;
 import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
-import com.fase4.fiap.entity.apartamento.model.Apartamento;
 import com.fase4.fiap.entity.morador.exception.MoradorNotFoundException;
 import com.fase4.fiap.entity.morador.gateway.MoradorGateway;
 import com.fase4.fiap.entity.morador.model.Morador;
-import com.fase4.fiap.usecase.morador.dto.IMoradorUpdateData;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
+import com.fase4.fiap.usecase.morador.dto.MoradorUpdateData;
 
 public class UpdateMoradorUseCase {
 
@@ -22,24 +22,35 @@ public class UpdateMoradorUseCase {
     }
 
     @Transactional
-    public Morador execute(UUID id, IMoradorUpdateData dados) throws MoradorNotFoundException, ApartamentoNotFoundException {
-        Morador morador = this.moradorGateway.findById(id)
+    public Morador execute(UUID id, MoradorUpdateData dados) throws MoradorNotFoundException, ApartamentoNotFoundException {
+        Morador morador = buscarMorador(id);
+        validarApartamento(dados.apartamentoId().getFirst());
+        atualizarDadosMorador(morador, dados);
+        return this.moradorGateway.update(morador);
+    }
+
+    private Morador buscarMorador(UUID id) throws MoradorNotFoundException {
+        return this.moradorGateway.findById(id)
                 .orElseThrow(() -> new MoradorNotFoundException("Morador not found: " + id));
+    }
 
-        Apartamento apartamento = apartamentoGateway.findById(dados.apartamentoId().getFirst())
-                .orElseThrow(() -> new ApartamentoNotFoundException("Apartamento not found: " + dados.apartamentoId().getFirst()));
+    private void validarApartamento(UUID apartamentoId) throws ApartamentoNotFoundException {
+        apartamentoGateway.findById(apartamentoId)
+                .orElseThrow(() -> new ApartamentoNotFoundException("Apartamento not found: " + apartamentoId));
+    }
 
-        if (dados.nome() != null && !dados.nome().isBlank())
+    private void atualizarDadosMorador(Morador morador, MoradorUpdateData dados) {
+        if (dados.nome() != null && !dados.nome().isBlank()) {
             morador.setNome(dados.nome());
+        }
 
-        if (!dados.telefone().isEmpty())
+        if (!dados.telefone().isEmpty()) {
             morador.setTelefone(dados.telefone());
+        }
 
         if (dados.apartamentoId() != null) {
             morador.setApartamentoId(dados.apartamentoId());
         }
-
-        return this.moradorGateway.update(morador);
     }
 
 }

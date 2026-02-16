@@ -25,7 +25,7 @@ import static com.fase4.fiap.usecase.fixtures.DadosDeTeste.recebimentoPadrao;
 import static com.fase4.fiap.usecase.fixtures.FabricaDeDtosMock.recebimentoDto;
 import static com.fase4.fiap.usecase.fixtures.FabricaDeDtosMock.recebimentoDtoPadrao;
 import com.fase4.fiap.usecase.message.publish.PublicarNotificacaoUseCase;
-import com.fase4.fiap.usecase.recebimento.dto.IRecebimentoRegistrationData;
+import com.fase4.fiap.usecase.recebimento.dto.RecebimentoRegistrationData;
 
 @DisplayName("Testes do CreateRecebimentoUseCase")
 class CreateRecebimentoUseCaseTest extends CasoDeUseTestBase {
@@ -56,7 +56,7 @@ class CreateRecebimentoUseCaseTest extends CasoDeUseTestBase {
     void deveCriarRecebimentoEPublicarNotificacaoComSucesso() throws ApartamentoNotFoundException {
         UUID apartamentoId = UUID.randomUUID();
         Apartamento apartamento = apartamentoPadrao();
-        IRecebimentoRegistrationData dadosRecebimento = recebimentoDtoPadrao(apartamentoId);
+        RecebimentoRegistrationData dadosRecebimento = recebimentoDtoPadrao(apartamentoId);
         Recebimento recebimentoSalvo = recebimentoPadrao(apartamentoId);
 
         when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.of(apartamento));
@@ -80,7 +80,7 @@ class CreateRecebimentoUseCaseTest extends CasoDeUseTestBase {
     @DisplayName("Deve lançar exceção quando apartamento não existe")
     void deveLancarExcecaoQuandoApartamentoNaoExiste() {
         UUID apartamentoId = UUID.randomUUID();
-        IRecebimentoRegistrationData dadosRecebimento = recebimentoDtoPadrao(apartamentoId);
+        RecebimentoRegistrationData dadosRecebimento = recebimentoDtoPadrao(apartamentoId);
 
         when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.empty());
 
@@ -97,7 +97,7 @@ class CreateRecebimentoUseCaseTest extends CasoDeUseTestBase {
     @DisplayName("Deve lançar exceção quando descrição for nula")
     void deveLancarExcecaoQuandoDescricaoForNula() {
         UUID apartamentoId = UUID.randomUUID();
-        IRecebimentoRegistrationData dadosRecebimento = recebimentoDto(
+        RecebimentoRegistrationData dadosRecebimento = recebimentoDto(
             apartamentoId, null, OffsetDateTime.now().minusHours(1)
         );
         
@@ -115,7 +115,7 @@ class CreateRecebimentoUseCaseTest extends CasoDeUseTestBase {
     void deveLancarExcecaoQuandoDataEntregaForFutura() {
         UUID apartamentoId = UUID.randomUUID();
         OffsetDateTime dataFutura = OffsetDateTime.now().plusDays(3);
-        IRecebimentoRegistrationData dadosRecebimento = recebimentoDto(
+        RecebimentoRegistrationData dadosRecebimento = recebimentoDto(
             apartamentoId, "Pacote", dataFutura
         );
 

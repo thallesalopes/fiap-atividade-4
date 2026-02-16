@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
 import com.fase4.fiap.entity.apartamento.model.Apartamento;
 import com.fase4.fiap.usecase.CasoDeUseTestBase;
-import com.fase4.fiap.usecase.apartamento.dto.IApartamentoRegistrationData;
+import com.fase4.fiap.usecase.apartamento.dto.ApartamentoRegistrationData;
 import static com.fase4.fiap.usecase.fixtures.DadosDeTeste.apartamentoPadrao;
 import static com.fase4.fiap.usecase.fixtures.FabricaDeDtosMock.apartamentoDtoPadrao;
 
@@ -33,7 +33,7 @@ class CreateApartamentoUseCaseTest extends CasoDeUseTestBase {
     @Test
     @DisplayName("Deve criar apartamento com dados válidos")
     void deveCriarApartamentoComDadosValidos() {
-        IApartamentoRegistrationData dadosApartamento = apartamentoDtoPadrao();
+        ApartamentoRegistrationData dadosApartamento = apartamentoDtoPadrao();
         Apartamento apartamentoSalvo = apartamentoPadrao();
         when(apartamentoGateway.save(any(Apartamento.class))).thenReturn(apartamentoSalvo);
 

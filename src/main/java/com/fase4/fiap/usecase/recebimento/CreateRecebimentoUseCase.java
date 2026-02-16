@@ -1,5 +1,7 @@
 package com.fase4.fiap.usecase.recebimento;
 
+import java.util.UUID;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fase4.fiap.entity.apartamento.exception.ApartamentoNotFoundException;
@@ -9,7 +11,7 @@ import com.fase4.fiap.entity.recebimento.gateway.RecebimentoGateway;
 import com.fase4.fiap.entity.recebimento.model.Recebimento;
 import static com.fase4.fiap.entity.recebimento.model.Recebimento.validacaoDataEntrega;
 import com.fase4.fiap.usecase.message.publish.PublicarNotificacaoUseCase;
-import com.fase4.fiap.usecase.recebimento.dto.IRecebimentoRegistrationData;
+import com.fase4.fiap.usecase.recebimento.dto.RecebimentoRegistrationData;
 
 public class CreateRecebimentoUseCase {
 
@@ -24,28 +26,44 @@ public class CreateRecebimentoUseCase {
     }
 
     @Transactional
-    public Recebimento execute(IRecebimentoRegistrationData dados) throws ApartamentoNotFoundException {
-
+    public Recebimento execute(RecebimentoRegistrationData dados) throws ApartamentoNotFoundException {
         validacaoDataEntrega(dados.dataEntrega());
+        validarApartamento(dados.apartamentoId());
 
-        apartamentoGateway.findById(dados.apartamentoId())
-                .orElseThrow(() -> new ApartamentoNotFoundException("Apartamento not found: " + dados.apartamentoId()));
+        Recebimento recebimento = criarRecebimento(dados);
+        enviarNotificacao(dados);
 
-        Recebimento recebimento = new Recebimento(dados.apartamentoId(), dados.descricao(), dados.dataEntrega(), dados.estadoColeta());
+        return this.recebimentoGateway.save(recebimento);
+    }
 
-        String mensagem = "Nova encomenda recebida: " +
-                "\nDescriÃ§Ã£o: " +
-                dados.descricao() +
-                "\nData de Entrega: " +
-                dados.dataEntrega().toString();
+    private void validarApartamento(UUID apartamentoId) throws ApartamentoNotFoundException {
+        apartamentoGateway.findById(apartamentoId)
+                .orElseThrow(() -> new ApartamentoNotFoundException("Apartamento not found: " + apartamentoId));
+    }
+
+    private Recebimento criarRecebimento(RecebimentoRegistrationData dados) {
+        return new Recebimento(
+                dados.apartamentoId(),
+                dados.descricao(),
+                dados.dataEntrega(),
+                dados.estadoColeta()
+        );
+    }
+
+    private void enviarNotificacao(RecebimentoRegistrationData dados) {
+        String mensagem = construirMensagemNotificacao(dados);
         Notificacao notificacao = new Notificacao(
                 dados.apartamentoId(),
                 mensagem,
                 dados.dataEntrega()
         );
         publicarNotificacaoUseCase.publish(notificacao);
+    }
 
-        return this.recebimentoGateway.save(recebimento);
+    private String construirMensagemNotificacao(RecebimentoRegistrationData dados) {
+        return "Nova encomenda recebida: " +
+                "\nDescrição: " + dados.descricao() +
+                "\nData de Entrega: " + dados.dataEntrega().toString();
     }
 
 }

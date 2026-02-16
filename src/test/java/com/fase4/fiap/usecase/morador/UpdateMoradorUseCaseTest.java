@@ -1,22 +1,26 @@
 package com.fase4.fiap.usecase.morador;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fase4.fiap.entity.apartamento.exception.ApartamentoNotFoundException;
 import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
 import com.fase4.fiap.entity.morador.exception.MoradorNotFoundException;
 import com.fase4.fiap.entity.morador.gateway.MoradorGateway;
 import com.fase4.fiap.entity.morador.model.Morador;
-import com.fase4.fiap.usecase.morador.dto.IMoradorUpdateData;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import com.fase4.fiap.usecase.morador.dto.MoradorUpdateData;
 
 class UpdateMoradorUseCaseTest {
 
@@ -39,7 +43,7 @@ class UpdateMoradorUseCaseTest {
         UUID moradorId = UUID.randomUUID();
         UUID apartamentoId = UUID.randomUUID();
 
-        IMoradorUpdateData dados = mock(IMoradorUpdateData.class);
+        MoradorUpdateData dados = mock(MoradorUpdateData.class);
         Morador morador = mock(Morador.class);
         when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.of(mock()));
         when(dados.nome()).thenReturn("João Silva");
@@ -62,7 +66,7 @@ class UpdateMoradorUseCaseTest {
     @DisplayName("Deve lançar MoradorNotFoundException quando morador não existe")
     void shouldThrowMoradorNotFoundExceptionWhenMoradorDoesNotExist() {
         UUID moradorId = UUID.randomUUID();
-        IMoradorUpdateData dados = mock(IMoradorUpdateData.class);
+        MoradorUpdateData dados = mock(MoradorUpdateData.class);
 
         when(moradorGateway.findById(moradorId)).thenReturn(Optional.empty());
 
@@ -79,7 +83,7 @@ class UpdateMoradorUseCaseTest {
         UUID moradorId = UUID.randomUUID();
         UUID apartamentoId = UUID.randomUUID();
 
-        IMoradorUpdateData dados = mock(IMoradorUpdateData.class);
+        MoradorUpdateData dados = mock(MoradorUpdateData.class);
         Morador morador = mock(Morador.class);
 
         when(moradorGateway.findById(moradorId)).thenReturn(Optional.of(morador));
@@ -98,7 +102,7 @@ class UpdateMoradorUseCaseTest {
         UUID moradorId = UUID.randomUUID();
         UUID apartamentoId = UUID.randomUUID();
 
-        IMoradorUpdateData dados = mock(IMoradorUpdateData.class);
+        MoradorUpdateData dados = mock(MoradorUpdateData.class);
         Morador morador = mock(Morador.class);
 
         when(moradorGateway.findById(moradorId)).thenReturn(Optional.of(morador));

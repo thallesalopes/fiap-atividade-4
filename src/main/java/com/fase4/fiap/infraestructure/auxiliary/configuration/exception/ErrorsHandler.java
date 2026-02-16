@@ -28,75 +28,64 @@ public class ErrorsHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity handleError400(MethodArgumentNotValidException ex) {
+    public ResponseEntity<List<ValidationErrorData>> handleError400(MethodArgumentNotValidException ex) {
         List<FieldError> erros = ex.getFieldErrors();
-
         List<ValidationErrorData> messages = new ArrayList<>(erros.size());
 
-        erros.forEach(erro -> {
-            if (messages.stream().anyMatch(dadosErroValidacao -> Objects.equals(dadosErroValidacao.field(), erro.getField()))) {
-                ValidationErrorData dados = messages.stream().filter(dadosErroValidacao ->
-                        Objects.equals(dadosErroValidacao.field(), erro.getField())
-                ).findFirst().get();
-
-                messages.remove(dados);
-                List<String> mensagens = dados.messages();
-                String erroMessage = erro.getDefaultMessage();
-                mensagens.add(erroMessage);
-                messages.add(new ValidationErrorData(erro.getField(), mensagens));
-            } else {
-                messages.add(new ValidationErrorData(erro));
-            }
-        });
+        erros.forEach(erro -> addOrMergeErrorMessage(
+                messages,
+                erro.getField(),
+                erro.getDefaultMessage()
+        ));
 
         return ResponseEntity.badRequest().body(messages);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity handleError400(HttpMessageNotReadableException ex) {
+    public ResponseEntity<String> handleError400(HttpMessageNotReadableException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity handleValidationError(ConstraintViolationException ex) {
-
+    public ResponseEntity<List<ValidationErrorData>> handleValidationError(ConstraintViolationException ex) {
         Set<ConstraintViolation<?>> constraintViolations = ex.getConstraintViolations();
-
         List<ValidationErrorData> messages = new ArrayList<>(constraintViolations.size());
 
-        constraintViolations.forEach(constraintViolation -> {
-            if (messages.stream().anyMatch(dadosErroValidacao -> Objects.equals(dadosErroValidacao.field(), constraintViolation.getPropertyPath().toString()))) {
-                ValidationErrorData dados = messages.stream().filter(dadosErroValidacao ->
-                        Objects.equals(dadosErroValidacao.field(), constraintViolation.getPropertyPath().toString())
-                ).findFirst().get();
-                messages.remove(dados);
-
-                List<String> mensagens = dados.messages();
-                mensagens.add(constraintViolation.getMessage());
-                messages.add(new ValidationErrorData(constraintViolation.getPropertyPath().toString(),
-                        mensagens));
-            }
-
-            messages.add(new ValidationErrorData(constraintViolation.getPropertyPath().toString(),
-                    Collections.singletonList(constraintViolation.getMessage())));
-        });
+        constraintViolations.forEach(constraintViolation -> addOrMergeErrorMessage(
+                messages,
+                constraintViolation.getPropertyPath().toString(),
+                constraintViolation.getMessage()
+        ));
 
         return ResponseEntity.badRequest().body(messages);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity handleError500(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " + ex.getLocalizedMessage());
+    public ResponseEntity<String> handleError500(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro: " + ex.getLocalizedMessage());
     }
 
     @ExceptionHandler(JpaSystemException.class)
-    public ResponseEntity handleError500(JpaSystemException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " + ex.getLocalizedMessage());
+    public ResponseEntity<String> handleError500(JpaSystemException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro: " + ex.getLocalizedMessage());
+    }
+
+    private void addOrMergeErrorMessage(List<ValidationErrorData> messages, String field, String message) {
+        messages.stream()
+                .filter(data -> Objects.equals(data.field(), field))
+                .findFirst()
+                .ifPresentOrElse(
+                        existingData -> {
+                            messages.remove(existingData);
+                            existingData.messages().add(message);
+                            messages.add(existingData);
+                        },
+                        () -> messages.add(new ValidationErrorData(field, new ArrayList<>(Collections.singletonList(message))))
+                );
     }
 
     private record ValidationErrorData(String field, List<String> messages) {
-        public ValidationErrorData(FieldError erro) {
-            this(erro.getField(), new ArrayList<>(Collections.singletonList(erro.getDefaultMessage())));
-        }
     }
 }

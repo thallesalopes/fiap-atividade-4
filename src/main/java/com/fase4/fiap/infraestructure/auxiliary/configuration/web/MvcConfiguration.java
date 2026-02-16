@@ -68,89 +68,55 @@ public class MvcConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public CreateApartamentoUseCase createApartamentoUseCase(ApartamentoRepository apartamentoRepository) {
-        ApartamentoGateway apartamentoGateway = new ApartamentoDatabaseGateway(apartamentoRepository);
+    public ApartamentoGateway apartamentoGateway(ApartamentoRepository apartamentoRepository) {
+        return new ApartamentoDatabaseGateway(apartamentoRepository);
+    }
+
+    @Bean
+    public CreateApartamentoUseCase createApartamentoUseCase(ApartamentoGateway apartamentoGateway) {
         return new CreateApartamentoUseCase(apartamentoGateway);
     }
 
     @Bean
-    public DeleteApartamentoUseCase deleteApartamentoUseCase(ApartamentoRepository apartamentoRepository) {
-        ApartamentoGateway apartamentoGateway = new ApartamentoDatabaseGateway(apartamentoRepository);
+    public DeleteApartamentoUseCase deleteApartamentoUseCase(ApartamentoGateway apartamentoGateway) {
         return new DeleteApartamentoUseCase(apartamentoGateway);
     }
 
     @Bean
-    public GetApartamentoUseCase getApartamentoUseCase(ApartamentoRepository apartamentoRepository) {
-        ApartamentoGateway apartamentoGateway = new ApartamentoDatabaseGateway(apartamentoRepository);
+    public GetApartamentoUseCase getApartamentoUseCase(ApartamentoGateway apartamentoGateway) {
         return new GetApartamentoUseCase(apartamentoGateway);
     }
 
     @Bean
-    public SearchApartamentoUseCase searchApartamentoUseCase(ApartamentoRepository apartamentoRepository) {
-        ApartamentoGateway apartamentoGateway = new ApartamentoDatabaseGateway(apartamentoRepository);
+    public SearchApartamentoUseCase searchApartamentoUseCase(ApartamentoGateway apartamentoGateway) {
         return new SearchApartamentoUseCase(apartamentoGateway);
     }
 
     @Bean
-    public CreateColetaEncomendaUseCase createColetaEncomendaUseCase(ColetaEncomendaRepository coletaEncomendaRepository,
-                                                                     RecebimentoRepository recebimentoRepository) {
-        ColetaEncomendaGateway coletaEncomendaGateway = new ColetaEncomendaDatabaseGateway(coletaEncomendaRepository);
-        RecebimentoGateway recebimentoGateway = new RecebimentoDatabaseGateway(recebimentoRepository);
+    public ColetaEncomendaGateway coletaEncomendaGateway(ColetaEncomendaRepository coletaEncomendaRepository) {
+        return new ColetaEncomendaDatabaseGateway(coletaEncomendaRepository);
+    }
+
+    @Bean
+    public RecebimentoGateway recebimentoGateway(RecebimentoRepository recebimentoRepository) {
+        return new RecebimentoDatabaseGateway(recebimentoRepository);
+    }
+
+    @Bean
+    public CreateColetaEncomendaUseCase createColetaEncomendaUseCase(
+            ColetaEncomendaGateway coletaEncomendaGateway,
+            RecebimentoGateway recebimentoGateway) {
         return new CreateColetaEncomendaUseCase(coletaEncomendaGateway, recebimentoGateway);
     }
 
     @Bean
-    public GetColetaEncomendaUseCase getColetaEncomendaUseCase(ColetaEncomendaRepository coletaEncomendaRepository) {
-        ColetaEncomendaGateway coletaEncomendaGateway = new ColetaEncomendaDatabaseGateway(coletaEncomendaRepository);
+    public GetColetaEncomendaUseCase getColetaEncomendaUseCase(ColetaEncomendaGateway coletaEncomendaGateway) {
         return new GetColetaEncomendaUseCase(coletaEncomendaGateway);
     }
 
     @Bean
-    public SearchColetaEncomendaUseCase searchColetaEncomendaUseCase(ColetaEncomendaRepository coletaEncomendaRepository) {
-        ColetaEncomendaGateway coletaEncomendaGateway = new ColetaEncomendaDatabaseGateway(coletaEncomendaRepository);
+    public SearchColetaEncomendaUseCase searchColetaEncomendaUseCase(ColetaEncomendaGateway coletaEncomendaGateway) {
         return new SearchColetaEncomendaUseCase(coletaEncomendaGateway);
-    }
-
-    @Bean
-    public CreateMoradorUseCase createMoradorUseCase(MoradorRepository moradorRepository,
-                                                     ApartamentoRepository apartamentoRepository) {
-        MoradorGateway moradorGateway = new MoradorDatabaseGateway(moradorRepository);
-        ApartamentoGateway apartamentoGateway = new ApartamentoDatabaseGateway(apartamentoRepository);
-        return new CreateMoradorUseCase(moradorGateway, apartamentoGateway);
-    }
-
-    @Bean
-    public DeleteMoradorUseCase deleteMoradorUseCase(MoradorRepository moradorRepository) {
-        MoradorGateway moradorGateway = new MoradorDatabaseGateway(moradorRepository);
-        return new DeleteMoradorUseCase(moradorGateway);
-    }
-
-    @Bean
-    public GetMoradorUseCase getMoradorUseCase(MoradorRepository moradorRepository) {
-        MoradorGateway moradorGateway = new MoradorDatabaseGateway(moradorRepository);
-        return new GetMoradorUseCase(moradorGateway);
-    }
-
-    @Bean
-    public SearchByApartamentoMoradorUseCase searchMoradorByApartamentoIdUseCase(MoradorRepository moradorRepository,
-                                                                                 ApartamentoRepository apartamentoRepository) {
-        MoradorGateway moradorGateway = new MoradorDatabaseGateway(moradorRepository);
-        ApartamentoGateway apartamentoGateway = new ApartamentoDatabaseGateway(apartamentoRepository);
-        return new SearchByApartamentoMoradorUseCase(moradorGateway, apartamentoGateway);
-    }
-
-    @Bean
-    public SearchMoradorUseCase searchMoradorUseCase(MoradorRepository moradorRepository) {
-        MoradorGateway moradorGateway = new MoradorDatabaseGateway(moradorRepository);
-        return new SearchMoradorUseCase(moradorGateway);
-    }
-
-    @Bean
-    public UpdateMoradorUseCase updateMoradorUseCase(MoradorRepository moradorRepository,
-                                                     ApartamentoRepository apartamentoRepository) {
-        MoradorGateway moradorGateway = new MoradorDatabaseGateway(moradorRepository);
-        ApartamentoGateway apartamentoGateway = new ApartamentoDatabaseGateway(apartamentoRepository);
-        return new UpdateMoradorUseCase(moradorGateway, apartamentoGateway);
     }
 
     @Bean
@@ -159,31 +125,63 @@ public class MvcConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public CreateRecebimentoUseCase createRecebimentoUseCase(RecebimentoRepository recebimentoRepository,
-                                                                               ApartamentoRepository apartamentoRepository,
-                                                                               PublicarNotificacaoUseCase publicarNotificacaoUseCase) {
-        RecebimentoGateway recebimentoGateway = new RecebimentoDatabaseGateway(recebimentoRepository);
-        ApartamentoGateway apartamentoGateway = new ApartamentoDatabaseGateway(apartamentoRepository);
+    public CreateMoradorUseCase createMoradorUseCase(
+            MoradorGateway moradorGateway,
+            ApartamentoGateway apartamentoGateway) {
+        return new CreateMoradorUseCase(moradorGateway, apartamentoGateway);
+    }
+
+    @Bean
+    public DeleteMoradorUseCase deleteMoradorUseCase(MoradorGateway moradorGateway) {
+        return new DeleteMoradorUseCase(moradorGateway);
+    }
+
+    @Bean
+    public GetMoradorUseCase getMoradorUseCase(MoradorGateway moradorGateway) {
+        return new GetMoradorUseCase(moradorGateway);
+    }
+
+    @Bean
+    public SearchByApartamentoMoradorUseCase searchMoradorByApartamentoIdUseCase(
+            MoradorGateway moradorGateway,
+            ApartamentoGateway apartamentoGateway) {
+        return new SearchByApartamentoMoradorUseCase(moradorGateway, apartamentoGateway);
+    }
+
+    @Bean
+    public SearchMoradorUseCase searchMoradorUseCase(MoradorGateway moradorGateway) {
+        return new SearchMoradorUseCase(moradorGateway);
+    }
+
+    @Bean
+    public UpdateMoradorUseCase updateMoradorUseCase(
+            MoradorGateway moradorGateway,
+            ApartamentoGateway apartamentoGateway) {
+        return new UpdateMoradorUseCase(moradorGateway, apartamentoGateway);
+    }
+
+    @Bean
+    public CreateRecebimentoUseCase createRecebimentoUseCase(
+            RecebimentoGateway recebimentoGateway,
+            ApartamentoGateway apartamentoGateway,
+            PublicarNotificacaoUseCase publicarNotificacaoUseCase) {
         return new CreateRecebimentoUseCase(recebimentoGateway, apartamentoGateway, publicarNotificacaoUseCase);
     }
 
     @Bean
-    public GetRecebimentoUseCase getRecebimentoUseCase(RecebimentoRepository recebimentoRepository) {
-        RecebimentoGateway recebimentoGateway = new RecebimentoDatabaseGateway(recebimentoRepository);
+    public GetRecebimentoUseCase getRecebimentoUseCase(RecebimentoGateway recebimentoGateway) {
         return new GetRecebimentoUseCase(recebimentoGateway);
     }
 
     @Bean
-    public SearchByApartamentoRecebimentoUseCase searchByApartamentoRecebimentoUseCase(RecebimentoRepository recebimentoRepository,
-                                                                                                        ApartamentoRepository apartamentoRepository) {
-        RecebimentoGateway recebimentoGateway = new RecebimentoDatabaseGateway(recebimentoRepository);
-        ApartamentoGateway apartamentoGateway = new ApartamentoDatabaseGateway(apartamentoRepository);
+    public SearchByApartamentoRecebimentoUseCase searchByApartamentoRecebimentoUseCase(
+            RecebimentoGateway recebimentoGateway,
+            ApartamentoGateway apartamentoGateway) {
         return new SearchByApartamentoRecebimentoUseCase(recebimentoGateway, apartamentoGateway);
     }
 
     @Bean
-    public SearchRecebimentoUseCase searchRecebimentoUseCase(RecebimentoRepository recebimentoRepository) {
-        RecebimentoGateway recebimentoGateway = new RecebimentoDatabaseGateway(recebimentoRepository);
+    public SearchRecebimentoUseCase searchRecebimentoUseCase(RecebimentoGateway recebimentoGateway) {
         return new SearchRecebimentoUseCase(recebimentoGateway);
     }
 
