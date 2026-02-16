@@ -1,43 +1,51 @@
 package com.fase4.fiap.usecase.apartamento;
 
-import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
-import com.fase4.fiap.entity.apartamento.model.Apartamento;
-import com.fase4.fiap.usecase.apartamento.dto.IApartamentoRegistrationData;
-import org.junit.jupiter.api.BeforeEach;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class CreateApartamentoUseCaseTest {
+import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
+import com.fase4.fiap.entity.apartamento.model.Apartamento;
+import com.fase4.fiap.usecase.UseCaseTestBase;
+import com.fase4.fiap.usecase.apartamento.dto.IApartamentoRegistrationData;
+import static com.fase4.fiap.usecase.fixtures.DtoMockFactory.apartamentoDtoPadrao;
+import static com.fase4.fiap.usecase.fixtures.TestFixtures.apartamentoPadrao;
 
-    private ApartamentoGateway apartamentoGateway;
+@DisplayName("Testes do CreateApartamentoUseCase")
+class CreateApartamentoUseCaseTest extends UseCaseTestBase {
+
     private CreateApartamentoUseCase useCase;
+    private ApartamentoGateway apartamentoGateway;
 
-    @BeforeEach
-    void setUp() {
-        apartamentoGateway = mock(ApartamentoGateway.class);
+    @Override
+    protected void setupMocks() {
+        apartamentoGateway = createMock(ApartamentoGateway.class);
+    }
+
+    @Override
+    protected void setupUseCase() {
         useCase = new CreateApartamentoUseCase(apartamentoGateway);
     }
 
     @Test
     @DisplayName("Deve criar apartamento com dados válidos")
-    void shouldCreateApartamentoWithValidData() {
-        IApartamentoRegistrationData dados = mock(IApartamentoRegistrationData.class);
+    void deveCriarApartamentoComDadosValidos() {
+        // Arrange
+        IApartamentoRegistrationData dadosApartamento = apartamentoDtoPadrao();
+        Apartamento apartamentoSalvo = apartamentoPadrao();
+        when(apartamentoGateway.save(any(Apartamento.class))).thenReturn(apartamentoSalvo);
 
-        when(dados.torre()).thenReturn('A');
-        when(dados.andar()).thenReturn((byte) 2);
-        when(dados.numero()).thenReturn((byte) 24);
+        // Act
+        Apartamento resultado = useCase.execute(dadosApartamento);
 
-        Apartamento apartamentoMock = mock(Apartamento.class);
-        when(apartamentoGateway.save(any(Apartamento.class))).thenReturn(apartamentoMock);
-
-        Apartamento resultado = useCase.execute(dados);
-
-        assertNotNull(resultado);
-        verify(apartamentoGateway, times(1)).save(any(Apartamento.class));
+        // Assert
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getTorre()).isEqualTo('A');
+        assertThat(resultado.getAndar()).isEqualTo((byte) 10);
+        assertThat(resultado.getNumero()).isEqualTo((byte) 101);
+        verify(apartamentoGateway).save(any(Apartamento.class));
     }
-
 }

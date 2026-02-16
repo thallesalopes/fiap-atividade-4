@@ -4,15 +4,12 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.BeforeEach;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,76 +19,79 @@ import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
 import com.fase4.fiap.entity.apartamento.model.Apartamento;
 import com.fase4.fiap.entity.recebimento.gateway.RecebimentoGateway;
 import com.fase4.fiap.entity.recebimento.model.Recebimento;
+import com.fase4.fiap.usecase.UseCaseTestBase;
+import static com.fase4.fiap.usecase.fixtures.DtoMockFactory.recebimentoDto;
+import static com.fase4.fiap.usecase.fixtures.DtoMockFactory.recebimentoDtoPadrao;
+import static com.fase4.fiap.usecase.fixtures.TestFixtures.apartamentoPadrao;
+import static com.fase4.fiap.usecase.fixtures.TestFixtures.recebimentoPadrao;
 import com.fase4.fiap.usecase.message.publish.PublicarNotificacaoUseCase;
 import com.fase4.fiap.usecase.recebimento.dto.IRecebimentoRegistrationData;
 
-public class CreateRecebimentoUseCaseTest {
+@DisplayName("Testes do CreateRecebimentoUseCase")
+class CreateRecebimentoUseCaseTest extends UseCaseTestBase {
 
+    private CreateRecebimentoUseCase useCase;
     private RecebimentoGateway recebimentoGateway;
     private ApartamentoGateway apartamentoGateway;
     private PublicarNotificacaoUseCase publicarNotificacaoUseCase;
-    private CreateRecebimentoUseCase useCase;
 
-    private UUID apartamentoId;
-    private IRecebimentoRegistrationData dados;
+    @Override
+    protected void setupMocks() {
+        recebimentoGateway = createMock(RecebimentoGateway.class);
+        apartamentoGateway = createMock(ApartamentoGateway.class);
+        publicarNotificacaoUseCase = createMock(PublicarNotificacaoUseCase.class);
+    }
 
-    @BeforeEach
-    void setUp() {
-        recebimentoGateway = mock(RecebimentoGateway.class);
-        apartamentoGateway = mock(ApartamentoGateway.class);
-        publicarNotificacaoUseCase = mock(PublicarNotificacaoUseCase.class);
-        useCase = new CreateRecebimentoUseCase(recebimentoGateway, apartamentoGateway, publicarNotificacaoUseCase);
-
-        apartamentoId = UUID.randomUUID();
-        dados = mock(IRecebimentoRegistrationData.class);
-
-        when(dados.apartamentoId()).thenReturn(apartamentoId);
-        when(dados.descricao()).thenReturn("Pacote de livros");
-        when(dados.dataEntrega()).thenReturn(OffsetDateTime.now());
-        when(dados.estadoColeta()).thenReturn(Recebimento.EstadoColeta.PENDENTE);
+    @Override
+    protected void setupUseCase() {
+        useCase = new CreateRecebimentoUseCase(
+            recebimentoGateway,
+            apartamentoGateway,
+            publicarNotificacaoUseCase
+        );
     }
 
     @Test
     @DisplayName("Deve criar recebimento de encomenda e publicar notificação com dados válidos")
-    void shouldCreateRecebimentoAndPublishNotificationWhenValidData() throws ApartamentoNotFoundException {
-        Apartamento apartamento = mock(Apartamento.class);
-        Recebimento savedRecebimento = new Recebimento(
-                apartamentoId,
-                dados.descricao(),
-                dados.dataEntrega(),
-                dados.estadoColeta()
-        );
+    void deveCriarRecebimentoEPublicarNotificacaoComSucesso() throws ApartamentoNotFoundException {
+        // Arrange
+        UUID apartamentoId = UUID.randomUUID();
+        Apartamento apartamento = apartamentoPadrao();
+        IRecebimentoRegistrationData dadosRecebimento = recebimentoDtoPadrao(apartamentoId);
+        Recebimento recebimentoSalvo = recebimentoPadrao(apartamentoId);
 
         when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.of(apartamento));
-        when(recebimentoGateway.save(any(Recebimento.class))).thenReturn(savedRecebimento);
+        when(recebimentoGateway.save(any(Recebimento.class))).thenReturn(recebimentoSalvo);
 
-        Recebimento resultado = useCase.execute(dados);
+        // Act
+        Recebimento resultado = useCase.execute(dadosRecebimento);
 
-        assertNotNull(resultado);
-        assertEquals(apartamentoId, resultado.getApartamentoId());
-        assertEquals(dados.descricao(), resultado.getDescricao());
-        assertEquals(dados.dataEntrega(), resultado.getDataEntrega());
-        assertEquals(dados.estadoColeta(), resultado.getEstadoColeta());
-
-        verify(publicarNotificacaoUseCase).publish(argThat(notificacao ->
-                notificacao.getApartamentoId().equals(apartamentoId)
-        ));
+        // Assert
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getApartamentoId()).isEqualTo(apartamentoId);
+        assertThat(resultado.getDescricao()).isEqualTo("Pacote de livros");
+        assertThat(resultado.getEstadoColeta()).isEqualTo(Recebimento.EstadoColeta.PENDENTE);
 
         verify(apartamentoGateway).findById(apartamentoId);
         verify(recebimentoGateway).save(any(Recebimento.class));
+        verify(publicarNotificacaoUseCase).publish(argThat(notificacao ->
+            notificacao.getApartamentoId().equals(apartamentoId)
+        ));
     }
 
     @Test
-    @DisplayName("Deve lanÃ§ar ApartamentoNotFoundException quando apartamento nÃ£o existe")
-    void shouldThrowApartamentoNotFoundExceptionWhenApartamentoNotFound() {
+    @DisplayName("Deve lançar exceção quando apartamento não existe")
+    void deveLancarExcecaoQuandoApartamentoNaoExiste() {
+        // Arrange
+        UUID apartamentoId = UUID.randomUUID();
+        IRecebimentoRegistrationData dadosRecebimento = recebimentoDtoPadrao(apartamentoId);
+
         when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.empty());
 
-        ApartamentoNotFoundException exception = assertThrows(
-                ApartamentoNotFoundException.class,
-                () -> useCase.execute(dados)
-        );
-
-        assertEquals("Apartamento not found: " + apartamentoId, exception.getMessage());
+        // Act & Assert
+        assertThatThrownBy(() -> useCase.execute(dadosRecebimento))
+            .isInstanceOf(ApartamentoNotFoundException.class)
+            .hasMessage("Apartamento not found: " + apartamentoId);
 
         verify(apartamentoGateway).findById(apartamentoId);
         verify(recebimentoGateway, never()).save(any());
@@ -99,30 +99,41 @@ public class CreateRecebimentoUseCaseTest {
     }
 
     @Test
-    @DisplayName("NÃ£o deve publicar notificaÃ§Ã£o se a descriÃ§Ã£o for nula (lanÃ§a exceÃ§Ã£o)")
-    void shouldNotPublishNotificationWhenDescricaoIsNull() {
-        when(dados.descricao()).thenReturn(null);
-        when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.of(mock(Apartamento.class)));
+    @DisplayName("Deve lançar exceção quando descrição for nula")
+    void deveLancarExcecaoQuandoDescricaoForNula() {
+        // Arrange
+        UUID apartamentoId = UUID.randomUUID();
+        IRecebimentoRegistrationData dadosRecebimento = recebimentoDto(
+            apartamentoId, null, OffsetDateTime.now().minusHours(1)
+        );
+        
+        when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.of(apartamentoPadrao()));
 
-        assertThrows(NullPointerException.class, () -> useCase.execute(dados));
+        // Act & Assert
+        assertThatThrownBy(() -> useCase.execute(dadosRecebimento))
+            .isInstanceOf(NullPointerException.class);
 
         verify(recebimentoGateway, never()).save(any());
         verify(publicarNotificacaoUseCase, never()).publish(any());
     }
 
     @Test
-    @DisplayName("Não deve salvar com estado PENDENTE se dataEntrega for futura")
-    void shouldNotSaveWithPendenteWhenDataEntregaIsFuture() throws ApartamentoNotFoundException {
-        OffsetDateTime future = OffsetDateTime.now().plusDays(3);
-        when(dados.dataEntrega()).thenReturn(future);
-        when(dados.estadoColeta()).thenReturn(Recebimento.EstadoColeta.PENDENTE);
+    @DisplayName("Deve lançar exceção quando data de entrega for futura")
+    void deveLancarExcecaoQuandoDataEntregaForFutura() {
+        // Arrange
+        UUID apartamentoId = UUID.randomUUID();
+        OffsetDateTime dataFutura = OffsetDateTime.now().plusDays(3);
+        IRecebimentoRegistrationData dadosRecebimento = recebimentoDto(
+            apartamentoId, "Pacote", dataFutura
+        );
 
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(dados));
+        // Act & Assert
+        assertThatThrownBy(() -> useCase.execute(dadosRecebimento))
+            .isInstanceOf(IllegalArgumentException.class);
 
         verify(apartamentoGateway, never()).findById(any());
         verify(recebimentoGateway, never()).save(any());
     }
-
 }
 
 

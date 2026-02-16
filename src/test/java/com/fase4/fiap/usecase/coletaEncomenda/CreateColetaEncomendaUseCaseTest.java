@@ -1,18 +1,14 @@
 package com.fase4.fiap.usecase.coletaEncomenda;
 
-import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.BeforeEach;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,61 +17,70 @@ import com.fase4.fiap.entity.coletaEncomenda.model.ColetaEncomenda;
 import com.fase4.fiap.entity.recebimento.exception.RecebimentoNotFoundException;
 import com.fase4.fiap.entity.recebimento.gateway.RecebimentoGateway;
 import com.fase4.fiap.entity.recebimento.model.Recebimento;
+import com.fase4.fiap.usecase.UseCaseTestBase;
 import com.fase4.fiap.usecase.coletaEncomenda.dto.IColetaEncomendaRegistrationData;
+import static com.fase4.fiap.usecase.fixtures.DtoMockFactory.coletaDtoPadrao;
+import static com.fase4.fiap.usecase.fixtures.TestFixtures.coletaPadrao;
+import static com.fase4.fiap.usecase.fixtures.TestFixtures.novoId;
+import static com.fase4.fiap.usecase.fixtures.TestFixtures.recebimentoPadrao;
 
-public class CreateColetaEncomendaUseCaseTest {
+@DisplayName("Testes do CreateColetaEncomendaUseCase")
+class CreateColetaEncomendaUseCaseTest extends UseCaseTestBase {
 
+    private CreateColetaEncomendaUseCase useCase;
     private ColetaEncomendaGateway coletaEncomendaGateway;
     private RecebimentoGateway recebimentoGateway;
-    private CreateColetaEncomendaUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        coletaEncomendaGateway = mock(ColetaEncomendaGateway.class);
-        recebimentoGateway = mock(RecebimentoGateway.class);
+    @Override
+    protected void setupMocks() {
+        coletaEncomendaGateway = createMock(ColetaEncomendaGateway.class);
+        recebimentoGateway = createMock(RecebimentoGateway.class);
+    }
+
+    @Override
+    protected void setupUseCase() {
         useCase = new CreateColetaEncomendaUseCase(coletaEncomendaGateway, recebimentoGateway);
     }
 
     @Test
-    @DisplayName("Deve criar coletaEncomenda com dados válidos")
-    void shouldCreateColetaEncomendaWithValidData() throws RecebimentoNotFoundException {
-        IColetaEncomendaRegistrationData dados = mock(IColetaEncomendaRegistrationData.class);
-        Recebimento recebimento = mock(Recebimento.class);
-        ColetaEncomenda coletaEncomenda = mock(ColetaEncomenda.class);
-
-        UUID recebimentoId = UUID.randomUUID();
-
-        when(dados.recebimentoId()).thenReturn(recebimentoId);
-        when(dados.cpfMoradorColeta()).thenReturn("12345678912");
-        when(dados.nomeMoradorColeta()).thenReturn("Teste Nome");
-        when(dados.dataColeta()).thenReturn(OffsetDateTime.now());
+    @DisplayName("Deve criar coleta de encomenda com dados válidos")
+    void deveCriarColetaEncomendaComDadosValidos() throws RecebimentoNotFoundException {
+        // Arrange
+        UUID recebimentoId = novoId();
+        UUID apartamentoId = novoId();
+        Recebimento recebimento = recebimentoPadrao(apartamentoId);
+        IColetaEncomendaRegistrationData dadosColeta = coletaDtoPadrao(recebimentoId);
+        ColetaEncomenda coletaSalva = coletaPadrao(recebimentoId);
 
         when(recebimentoGateway.findById(recebimentoId)).thenReturn(Optional.of(recebimento));
-        when(coletaEncomendaGateway.save(any(ColetaEncomenda.class))).thenReturn(coletaEncomenda);
+        when(coletaEncomendaGateway.save(any(ColetaEncomenda.class))).thenReturn(coletaSalva);
 
-        ColetaEncomenda resultado = useCase.execute(dados);
+        // Act
+        ColetaEncomenda resultado = useCase.execute(dadosColeta);
 
-        assertNotNull(resultado);
-        verify(recebimentoGateway, times(1)).findById(recebimentoId);
-        verify(coletaEncomendaGateway, times(1)).save(any(ColetaEncomenda.class));
+        // Assert
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getRecebimentoId()).isEqualTo(recebimentoId);
+        verify(recebimentoGateway).findById(recebimentoId);
+        verify(coletaEncomendaGateway).save(any(ColetaEncomenda.class));
     }
 
     @Test
-    @DisplayName("Deve lanÃ§ar recebimentoNotFoundException quando recebimento nÃ£o existe")
-    void shouldThrowrecebimentoNotFoundExceptionWhenrecebimentoDoesNotExist() {
-        IColetaEncomendaRegistrationData dados = mock(IColetaEncomendaRegistrationData.class);
-        UUID recebimentoId = UUID.randomUUID();
+    @DisplayName("Deve lançar exceção quando recebimento não existe")
+    void deveLancarExcecaoQuandoRecebimentoNaoExiste() {
+        // Arrange
+        UUID recebimentoId = novoId();
+        IColetaEncomendaRegistrationData dadosColeta = coletaDtoPadrao(recebimentoId);
 
-        when(dados.recebimentoId()).thenReturn(recebimentoId);
         when(recebimentoGateway.findById(recebimentoId)).thenReturn(Optional.empty());
-        when(dados.dataColeta()).thenReturn(OffsetDateTime.now());
 
-        assertThrows(RecebimentoNotFoundException.class, () -> useCase.execute(dados));
+        // Act & Assert
+        assertThatThrownBy(() -> useCase.execute(dadosColeta))
+            .isInstanceOf(RecebimentoNotFoundException.class);
 
-        verify(recebimentoGateway, times(1)).findById(recebimentoId);
+        verify(recebimentoGateway).findById(recebimentoId);
         verify(coletaEncomendaGateway, never()).save(any());
     }
-
 }
 
 
