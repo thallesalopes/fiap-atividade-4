@@ -1,15 +1,15 @@
 package com.fase4.fiap.usecase.recebimento;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fase4.fiap.entity.apartamento.exception.ApartamentoNotFoundException;
 import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
 import com.fase4.fiap.entity.message.notificacao.model.Notificacao;
 import com.fase4.fiap.entity.recebimento.gateway.RecebimentoGateway;
 import com.fase4.fiap.entity.recebimento.model.Recebimento;
+import static com.fase4.fiap.entity.recebimento.model.Recebimento.validacaoDataEntrega;
 import com.fase4.fiap.usecase.message.publish.PublicarNotificacaoUseCase;
 import com.fase4.fiap.usecase.recebimento.dto.IRecebimentoRegistrationData;
-import org.springframework.transaction.annotation.Transactional;
-
-import static com.fase4.fiap.entity.recebimento.model.Recebimento.validacaoDataEntrega;
 
 public class CreateRecebimentoUseCase {
 
@@ -38,7 +38,6 @@ public class CreateRecebimentoUseCase {
                 dados.descricao() +
                 "\nData de Entrega: " +
                 dados.dataEntrega().toString();
-        // Send notification to the apartment user
         Notificacao notificacao = new Notificacao(
                 dados.apartamentoId(),
                 mensagem,

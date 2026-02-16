@@ -1,5 +1,13 @@
 package com.fase4.fiap.infraestructure.auxiliary.configuration.web;
 
+import java.util.ResourceBundle;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
 import com.fase4.fiap.entity.coletaEncomenda.gateway.ColetaEncomendaGateway;
 import com.fase4.fiap.entity.message.email.gateway.EmailGateway;
@@ -8,7 +16,12 @@ import com.fase4.fiap.entity.message.notificacaoLeitura.gateway.NotificacaoLeitu
 import com.fase4.fiap.entity.morador.gateway.MoradorGateway;
 import com.fase4.fiap.entity.recebimento.gateway.RecebimentoGateway;
 import com.fase4.fiap.infraestructure.apartamento.gateway.ApartamentoDatabaseGateway;
-import com.fase4.fiap.infraestructure.auxiliary.configuration.db.repository.*;
+import com.fase4.fiap.infraestructure.auxiliary.configuration.db.repository.ApartamentoRepository;
+import com.fase4.fiap.infraestructure.auxiliary.configuration.db.repository.ColetaEncomendaRepository;
+import com.fase4.fiap.infraestructure.auxiliary.configuration.db.repository.MoradorRepository;
+import com.fase4.fiap.infraestructure.auxiliary.configuration.db.repository.NotificacaoLeituraRepository;
+import com.fase4.fiap.infraestructure.auxiliary.configuration.db.repository.NotificacaoRepository;
+import com.fase4.fiap.infraestructure.auxiliary.configuration.db.repository.RecebimentoRepository;
 import com.fase4.fiap.infraestructure.coletaEncomenda.gateway.ColetaEncomendaDatabaseGateway;
 import com.fase4.fiap.infraestructure.message.gateway.NotificacaoDatabaseGateway;
 import com.fase4.fiap.infraestructure.message.gateway.NotificacaoLeituraDatabaseGateway;
@@ -25,16 +38,16 @@ import com.fase4.fiap.usecase.coletaEncomenda.SearchColetaEncomendaUseCase;
 import com.fase4.fiap.usecase.message.NotificarLeituraUseCase;
 import com.fase4.fiap.usecase.message.publish.PublicarNotificacaoUseCase;
 import com.fase4.fiap.usecase.message.subscribe.ProcessarNotificacaoUseCase;
-import com.fase4.fiap.usecase.morador.*;
-import com.fase4.fiap.usecase.recebimento.*;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.ResourceBundle;
+import com.fase4.fiap.usecase.morador.CreateMoradorUseCase;
+import com.fase4.fiap.usecase.morador.DeleteMoradorUseCase;
+import com.fase4.fiap.usecase.morador.GetMoradorUseCase;
+import com.fase4.fiap.usecase.morador.SearchByApartamentoMoradorUseCase;
+import com.fase4.fiap.usecase.morador.SearchMoradorUseCase;
+import com.fase4.fiap.usecase.morador.UpdateMoradorUseCase;
+import com.fase4.fiap.usecase.recebimento.CreateRecebimentoUseCase;
+import com.fase4.fiap.usecase.recebimento.GetRecebimentoUseCase;
+import com.fase4.fiap.usecase.recebimento.SearchByApartamentoRecebimentoUseCase;
+import com.fase4.fiap.usecase.recebimento.SearchRecebimentoUseCase;
 
 @Configuration
 public class MvcConfiguration implements WebMvcConfigurer {
@@ -54,7 +67,6 @@ public class MvcConfiguration implements WebMvcConfigurer {
         return new AcceptHeaderResolver();
     }
 
-    // --- Apartamento ---
     @Bean
     public CreateApartamentoUseCase createApartamentoUseCase(ApartamentoRepository apartamentoRepository) {
         ApartamentoGateway apartamentoGateway = new ApartamentoDatabaseGateway(apartamentoRepository);
@@ -79,7 +91,6 @@ public class MvcConfiguration implements WebMvcConfigurer {
         return new SearchApartamentoUseCase(apartamentoGateway);
     }
 
-    // --- ColetaEncomenda ---
     @Bean
     public CreateColetaEncomendaUseCase createColetaEncomendaUseCase(ColetaEncomendaRepository coletaEncomendaRepository,
                                                                      RecebimentoRepository recebimentoRepository) {
@@ -100,7 +111,6 @@ public class MvcConfiguration implements WebMvcConfigurer {
         return new SearchColetaEncomendaUseCase(coletaEncomendaGateway);
     }
 
-    // --- Morador ---
     @Bean
     public CreateMoradorUseCase createMoradorUseCase(MoradorRepository moradorRepository,
                                                      ApartamentoRepository apartamentoRepository) {
@@ -148,7 +158,6 @@ public class MvcConfiguration implements WebMvcConfigurer {
         return new MoradorDatabaseGateway(moradorRepository);
     }
 
-    // --- Recebimento ---
     @Bean
     public CreateRecebimentoUseCase createRecebimentoUseCase(RecebimentoRepository recebimentoRepository,
                                                                                ApartamentoRepository apartamentoRepository,
@@ -178,7 +187,6 @@ public class MvcConfiguration implements WebMvcConfigurer {
         return new SearchRecebimentoUseCase(recebimentoGateway);
     }
 
-    // --- Message ---
     @Bean
     public PublicarNotificacaoUseCase publicarNotificacaoUseCase(NotificacaoRepository notificacaoRepository,
                                                                  NotificacaoProducer notificacaoProducer) {

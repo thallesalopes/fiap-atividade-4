@@ -19,16 +19,16 @@ import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
 import com.fase4.fiap.entity.apartamento.model.Apartamento;
 import com.fase4.fiap.entity.recebimento.gateway.RecebimentoGateway;
 import com.fase4.fiap.entity.recebimento.model.Recebimento;
-import com.fase4.fiap.usecase.UseCaseTestBase;
-import static com.fase4.fiap.usecase.fixtures.DtoMockFactory.recebimentoDto;
-import static com.fase4.fiap.usecase.fixtures.DtoMockFactory.recebimentoDtoPadrao;
-import static com.fase4.fiap.usecase.fixtures.TestFixtures.apartamentoPadrao;
-import static com.fase4.fiap.usecase.fixtures.TestFixtures.recebimentoPadrao;
+import com.fase4.fiap.usecase.CasoDeUseTestBase;
+import static com.fase4.fiap.usecase.fixtures.DadosDeTeste.apartamentoPadrao;
+import static com.fase4.fiap.usecase.fixtures.DadosDeTeste.recebimentoPadrao;
+import static com.fase4.fiap.usecase.fixtures.FabricaDeDtosMock.recebimentoDto;
+import static com.fase4.fiap.usecase.fixtures.FabricaDeDtosMock.recebimentoDtoPadrao;
 import com.fase4.fiap.usecase.message.publish.PublicarNotificacaoUseCase;
 import com.fase4.fiap.usecase.recebimento.dto.IRecebimentoRegistrationData;
 
 @DisplayName("Testes do CreateRecebimentoUseCase")
-class CreateRecebimentoUseCaseTest extends UseCaseTestBase {
+class CreateRecebimentoUseCaseTest extends CasoDeUseTestBase {
 
     private CreateRecebimentoUseCase useCase;
     private RecebimentoGateway recebimentoGateway;
@@ -36,14 +36,14 @@ class CreateRecebimentoUseCaseTest extends UseCaseTestBase {
     private PublicarNotificacaoUseCase publicarNotificacaoUseCase;
 
     @Override
-    protected void setupMocks() {
-        recebimentoGateway = createMock(RecebimentoGateway.class);
-        apartamentoGateway = createMock(ApartamentoGateway.class);
-        publicarNotificacaoUseCase = createMock(PublicarNotificacaoUseCase.class);
+    protected void configurarMocks() {
+        recebimentoGateway = criarMock(RecebimentoGateway.class);
+        apartamentoGateway = criarMock(ApartamentoGateway.class);
+        publicarNotificacaoUseCase = criarMock(PublicarNotificacaoUseCase.class);
     }
 
     @Override
-    protected void setupUseCase() {
+    protected void configurarCasoDeUso() {
         useCase = new CreateRecebimentoUseCase(
             recebimentoGateway,
             apartamentoGateway,
@@ -54,7 +54,6 @@ class CreateRecebimentoUseCaseTest extends UseCaseTestBase {
     @Test
     @DisplayName("Deve criar recebimento de encomenda e publicar notificação com dados válidos")
     void deveCriarRecebimentoEPublicarNotificacaoComSucesso() throws ApartamentoNotFoundException {
-        // Arrange
         UUID apartamentoId = UUID.randomUUID();
         Apartamento apartamento = apartamentoPadrao();
         IRecebimentoRegistrationData dadosRecebimento = recebimentoDtoPadrao(apartamentoId);
@@ -63,10 +62,8 @@ class CreateRecebimentoUseCaseTest extends UseCaseTestBase {
         when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.of(apartamento));
         when(recebimentoGateway.save(any(Recebimento.class))).thenReturn(recebimentoSalvo);
 
-        // Act
         Recebimento resultado = useCase.execute(dadosRecebimento);
 
-        // Assert
         assertThat(resultado).isNotNull();
         assertThat(resultado.getApartamentoId()).isEqualTo(apartamentoId);
         assertThat(resultado.getDescricao()).isEqualTo("Pacote de livros");
@@ -82,13 +79,11 @@ class CreateRecebimentoUseCaseTest extends UseCaseTestBase {
     @Test
     @DisplayName("Deve lançar exceção quando apartamento não existe")
     void deveLancarExcecaoQuandoApartamentoNaoExiste() {
-        // Arrange
         UUID apartamentoId = UUID.randomUUID();
         IRecebimentoRegistrationData dadosRecebimento = recebimentoDtoPadrao(apartamentoId);
 
         when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThatThrownBy(() -> useCase.execute(dadosRecebimento))
             .isInstanceOf(ApartamentoNotFoundException.class)
             .hasMessage("Apartamento not found: " + apartamentoId);
@@ -101,7 +96,6 @@ class CreateRecebimentoUseCaseTest extends UseCaseTestBase {
     @Test
     @DisplayName("Deve lançar exceção quando descrição for nula")
     void deveLancarExcecaoQuandoDescricaoForNula() {
-        // Arrange
         UUID apartamentoId = UUID.randomUUID();
         IRecebimentoRegistrationData dadosRecebimento = recebimentoDto(
             apartamentoId, null, OffsetDateTime.now().minusHours(1)
@@ -109,7 +103,6 @@ class CreateRecebimentoUseCaseTest extends UseCaseTestBase {
         
         when(apartamentoGateway.findById(apartamentoId)).thenReturn(Optional.of(apartamentoPadrao()));
 
-        // Act & Assert
         assertThatThrownBy(() -> useCase.execute(dadosRecebimento))
             .isInstanceOf(NullPointerException.class);
 
@@ -120,14 +113,12 @@ class CreateRecebimentoUseCaseTest extends UseCaseTestBase {
     @Test
     @DisplayName("Deve lançar exceção quando data de entrega for futura")
     void deveLancarExcecaoQuandoDataEntregaForFutura() {
-        // Arrange
         UUID apartamentoId = UUID.randomUUID();
         OffsetDateTime dataFutura = OffsetDateTime.now().plusDays(3);
         IRecebimentoRegistrationData dadosRecebimento = recebimentoDto(
             apartamentoId, "Pacote", dataFutura
         );
 
-        // Act & Assert
         assertThatThrownBy(() -> useCase.execute(dadosRecebimento))
             .isInstanceOf(IllegalArgumentException.class);
 

@@ -9,39 +9,36 @@ import static org.mockito.Mockito.when;
 
 import com.fase4.fiap.entity.apartamento.gateway.ApartamentoGateway;
 import com.fase4.fiap.entity.apartamento.model.Apartamento;
-import com.fase4.fiap.usecase.UseCaseTestBase;
+import com.fase4.fiap.usecase.CasoDeUseTestBase;
 import com.fase4.fiap.usecase.apartamento.dto.IApartamentoRegistrationData;
-import static com.fase4.fiap.usecase.fixtures.DtoMockFactory.apartamentoDtoPadrao;
-import static com.fase4.fiap.usecase.fixtures.TestFixtures.apartamentoPadrao;
+import static com.fase4.fiap.usecase.fixtures.DadosDeTeste.apartamentoPadrao;
+import static com.fase4.fiap.usecase.fixtures.FabricaDeDtosMock.apartamentoDtoPadrao;
 
 @DisplayName("Testes do CreateApartamentoUseCase")
-class CreateApartamentoUseCaseTest extends UseCaseTestBase {
+class CreateApartamentoUseCaseTest extends CasoDeUseTestBase {
 
     private CreateApartamentoUseCase useCase;
     private ApartamentoGateway apartamentoGateway;
 
     @Override
-    protected void setupMocks() {
-        apartamentoGateway = createMock(ApartamentoGateway.class);
+    protected void configurarMocks() {
+        apartamentoGateway = criarMock(ApartamentoGateway.class);
     }
 
     @Override
-    protected void setupUseCase() {
+    protected void configurarCasoDeUso() {
         useCase = new CreateApartamentoUseCase(apartamentoGateway);
     }
 
     @Test
     @DisplayName("Deve criar apartamento com dados válidos")
     void deveCriarApartamentoComDadosValidos() {
-        // Arrange
         IApartamentoRegistrationData dadosApartamento = apartamentoDtoPadrao();
         Apartamento apartamentoSalvo = apartamentoPadrao();
         when(apartamentoGateway.save(any(Apartamento.class))).thenReturn(apartamentoSalvo);
 
-        // Act
         Apartamento resultado = useCase.execute(dadosApartamento);
 
-        // Assert
         assertThat(resultado).isNotNull();
         assertThat(resultado.getTorre()).isEqualTo('A');
         assertThat(resultado.getAndar()).isEqualTo((byte) 10);

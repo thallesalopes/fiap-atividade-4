@@ -14,13 +14,8 @@ import com.fase4.fiap.usecase.morador.dto.IMoradorRegistrationData;
 import com.fase4.fiap.usecase.morador.dto.IMoradorUpdateData;
 import com.fase4.fiap.usecase.recebimento.dto.IRecebimentoRegistrationData;
 
-/**
- * Factory para criar DTOs mockados para testes.
- * Centraliza a criação de mocks de entrada.
- */
-public class DtoMockFactory {
+public class FabricaDeDtosMock {
 
-    // Apartamento DTO
     public static IApartamentoRegistrationData apartamentoDto(char torre, byte andar, byte numero) {
         IApartamentoRegistrationData dto = mock(IApartamentoRegistrationData.class);
         when(dto.torre()).thenReturn(torre);
@@ -33,7 +28,6 @@ public class DtoMockFactory {
         return apartamentoDto('A', (byte) 10, (byte) 101);
     }
 
-    // Morador DTO
     public static IMoradorRegistrationData moradorDto(String cpf, String nome, String email, UUID apartamentoId) {
         IMoradorRegistrationData dto = mock(IMoradorRegistrationData.class);
         when(dto.cpf()).thenReturn(cpf);
@@ -48,7 +42,6 @@ public class DtoMockFactory {
         return moradorDto("12345678901", "João Silva", "joao@email.com", apartamentoId);
     }
 
-    // Morador Update DTO
     public static IMoradorUpdateData moradorUpdateDto(String nome, List<String> telefones, UUID apartamentoId) {
         IMoradorUpdateData dto = mock(IMoradorUpdateData.class);
         when(dto.nome()).thenReturn(nome);
@@ -57,7 +50,6 @@ public class DtoMockFactory {
         return dto;
     }
 
-    // Recebimento DTO
     public static IRecebimentoRegistrationData recebimentoDto(
             UUID apartamentoId, 
             String descricao, 
@@ -74,7 +66,6 @@ public class DtoMockFactory {
         return recebimentoDto(apartamentoId, "Pacote de livros", OffsetDateTime.now().minusHours(1));
     }
 
-    // Coleta Encomenda DTO
     public static IColetaEncomendaRegistrationData coletaDto(
             UUID recebimentoId, 
             String cpf, 

@@ -34,7 +34,6 @@ public class ErrorsHandler {
         List<ValidationErrorData> messages = new ArrayList<>(erros.size());
 
         erros.forEach(erro -> {
-            // Se houver mais de uma mensagem de erro para o mesmo campo, adiciona a mensagem na lista de mensagens
             if (messages.stream().anyMatch(dadosErroValidacao -> Objects.equals(dadosErroValidacao.field(), erro.getField()))) {
                 ValidationErrorData dados = messages.stream().filter(dadosErroValidacao ->
                         Objects.equals(dadosErroValidacao.field(), erro.getField())
@@ -66,7 +65,6 @@ public class ErrorsHandler {
         List<ValidationErrorData> messages = new ArrayList<>(constraintViolations.size());
 
         constraintViolations.forEach(constraintViolation -> {
-            // Se houver mais de uma mensagem de erro para o mesmo campo, adiciona a mensagem na lista de mensagens
             if (messages.stream().anyMatch(dadosErroValidacao -> Objects.equals(dadosErroValidacao.field(), constraintViolation.getPropertyPath().toString()))) {
                 ValidationErrorData dados = messages.stream().filter(dadosErroValidacao ->
                         Objects.equals(dadosErroValidacao.field(), constraintViolation.getPropertyPath().toString())
